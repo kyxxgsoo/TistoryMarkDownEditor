@@ -44,7 +44,7 @@ export function waitForEditor(): Promise<TistoryEditorElements> {
 
     const timeout = setTimeout(() => {
       observer.disconnect();
-      reject(new Error('[TistoryMarkdownEditor] 에디터 DOM을 찾을 수 없습니다. (10초 타임아웃)'));
+      reject(new Error('[Tition] 에디터 DOM을 찾을 수 없습니다. (10초 타임아웃)'));
     }, 10_000);
 
     const observer = new MutationObserver(() => {
