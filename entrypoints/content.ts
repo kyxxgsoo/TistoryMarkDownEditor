@@ -9,7 +9,7 @@ export default defineContentScript({
       const elements = await waitForEditor();
       injectEditor(elements);
     } catch (error) {
-      console.error('[TistoryMarkdownEditor]', error);
+      console.error('[Tition]', error);
     }
   },
 });

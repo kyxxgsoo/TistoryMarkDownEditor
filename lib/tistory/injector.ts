@@ -14,7 +14,7 @@ export function injectEditor(elements: TistoryEditorElements): Editor {
   const { editorContainer, kakaoEditor } = elements;
 
   if (document.getElementById(TIPTAP_CONTAINER_ID)) {
-    throw new Error('[TistoryMarkdownEditor] 에디터가 이미 주입되어 있습니다.');
+    throw new Error('[Tition] 에디터가 이미 주입되어 있습니다.');
   }
 
   // 기존 에디터를 오프스크린으로 숨기기
