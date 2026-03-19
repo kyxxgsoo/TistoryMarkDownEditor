@@ -1,6 +1,8 @@
-# Tistory Markdown Editor
+# Tition
 
-Tistory 블로그 글쓰기 페이지에 노션 스타일 마크다운 WYSIWYG 에디터를 제공하는 Chrome Extension입니다.
+> **Tistory In Notion** — Tistory 블로그에 노션 스타일 에디터를 입히다
+
+Tistory 글쓰기 페이지에 노션 스타일 마크다운 WYSIWYG 에디터를 제공하는 Chrome Extension입니다.
 
 ## 주요 기능
 

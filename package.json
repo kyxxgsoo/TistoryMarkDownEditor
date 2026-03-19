@@ -1,6 +1,6 @@
 {
-  "name": "tistory-markdown-editor",
-  "description": "Tistory WYSIWYG Markdown Editor Chrome Extension",
+  "name": "tition",
+  "description": "Tition - Tistory In Notion Editor",
   "private": true,
   "version": "0.1.0",
   "type": "module",
