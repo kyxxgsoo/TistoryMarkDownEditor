@@ -1,0 +1,131 @@
+/* TipTap 에디터 컨테이너 */
+#tiptap-markdown-editor {
+  border: 1px solid #e0e5ee;
+  border-radius: 4px;
+  background: #fff;
+  min-height: 470px;
+  margin: 0;
+}
+
+/* ProseMirror 에디터 영역 */
+#tiptap-markdown-editor .tiptap-editor-content {
+  padding: 20px 30px;
+  min-height: 470px;
+  outline: none;
+  font-family: 'Noto Sans KR', AppleSDGothicNeo, 'Malgun Gothic', dotum, sans-serif;
+  font-size: 16px;
+  line-height: 1.8;
+  color: #333;
+}
+
+/* 포커스 시 테두리 */
+#tiptap-markdown-editor:focus-within {
+  border-color: #828c9b;
+}
+
+/* 헤딩 */
+#tiptap-markdown-editor h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 24px 0 8px;
+  line-height: 1.4;
+}
+
+#tiptap-markdown-editor h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 20px 0 8px;
+  line-height: 1.4;
+}
+
+#tiptap-markdown-editor h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 16px 0 8px;
+  line-height: 1.4;
+}
+
+#tiptap-markdown-editor h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 12px 0 8px;
+  line-height: 1.4;
+}
+
+/* 단락 */
+#tiptap-markdown-editor p {
+  margin: 0 0 8px;
+}
+
+/* 볼드, 이탤릭 */
+#tiptap-markdown-editor strong {
+  font-weight: 700;
+}
+
+#tiptap-markdown-editor em {
+  font-style: italic;
+}
+
+/* 코드블록 */
+#tiptap-markdown-editor .tiptap-code-block {
+  background: #f5f7fa;
+  border: 1px solid #e0e5ee;
+  border-radius: 4px;
+  padding: 16px 20px;
+  font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  overflow-x: auto;
+  margin: 12px 0;
+}
+
+/* 인라인 코드 */
+#tiptap-markdown-editor code:not(.tiptap-code-block code) {
+  background: #f0f2f5;
+  border-radius: 3px;
+  padding: 2px 6px;
+  font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+  font-size: 0.9em;
+  color: #e83e8c;
+}
+
+/* 인용문 */
+#tiptap-markdown-editor .tiptap-blockquote {
+  border-left: 4px solid #e0e5ee;
+  margin: 12px 0;
+  padding: 8px 20px;
+  color: #666;
+}
+
+/* 리스트 */
+#tiptap-markdown-editor ul {
+  list-style: disc;
+  padding-left: 24px;
+  margin: 8px 0;
+}
+
+#tiptap-markdown-editor ol {
+  list-style: decimal;
+  padding-left: 24px;
+  margin: 8px 0;
+}
+
+#tiptap-markdown-editor li {
+  margin: 4px 0;
+}
+
+/* 수평선 */
+#tiptap-markdown-editor hr {
+  border: none;
+  border-top: 1px solid #e0e5ee;
+  margin: 16px 0;
+}
+
+/* 플레이스홀더 */
+#tiptap-markdown-editor .tiptap-editor-content p.is-editor-empty:first-child::before {
+  content: '마크다운으로 작성하세요...';
+  color: #adb5bd;
+  pointer-events: none;
+  float: left;
+  height: 0;
+}
