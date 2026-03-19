@@ -67,7 +67,6 @@ export function injectEditor(elements: TistoryEditorElements): Editor {
     if (syncTimer) clearTimeout(syncTimer);
     const html = editor.getHTML();
     syncToTistory(html);
-    console.log('[TistoryMarkdownEditor] 즉시 동기화:', html.substring(0, 200));
   }
 
   // 발행 버튼: mousedown은 click보다 먼저 발생 → 동기화 시간 확보
@@ -85,8 +84,6 @@ export function injectEditor(elements: TistoryEditorElements): Editor {
     draftBtn.addEventListener('click', () => doSyncNow(), { capture: true });
   }
 
-  console.log('[TistoryMarkdownEditor] TipTap 에디터 주입 완료');
-  console.log('[TistoryMarkdownEditor] extensions:', editor.extensionManager.extensions.map(e => e.name));
   return editor;
 }
 
@@ -107,5 +104,4 @@ export function removeEditor(editor: Editor, elements: TistoryEditorElements): v
   elements.editorContainer.style.overflow = '';
   elements.editorContainer.style.opacity = '';
   elements.editorContainer.style.pointerEvents = '';
-  console.log('[TistoryMarkdownEditor] 기존 에디터 복원 완료');
 }

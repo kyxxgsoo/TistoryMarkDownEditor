@@ -17,8 +17,6 @@ export default defineContentScript({
       const html = e.data.html;
       if (typeof html !== 'string') return;
 
-      console.log('[SyncBridge] 수신된 HTML:', html.substring(0, 100));
-
       // 1. TinyMCE API로 콘텐츠 설정 + save()로 textarea에 반영
       const tinymce = (window as any).tinymce;
       if (tinymce) {
@@ -26,15 +24,8 @@ export default defineContentScript({
         if (editor) {
           editor.setContent(html);
           editor.setDirty(true);
-          // save()는 TinyMCE 내부적으로 textarea에 콘텐츠를 기록한다
           editor.save();
-          console.log('[SyncBridge] TinyMCE 동기화 + save 성공');
-          console.log('[SyncBridge] TinyMCE getContent:', editor.getContent().substring(0, 100));
-        } else {
-          console.warn('[SyncBridge] TinyMCE editor 인스턴스 없음');
         }
-      } else {
-        console.warn('[SyncBridge] window.tinymce 없음');
       }
 
       // 2. 숨겨진 textarea에도 직접 설정 (안전장치)
@@ -50,6 +41,5 @@ export default defineContentScript({
       }
     });
 
-    console.log('[TistoryMarkdownEditor] Sync bridge loaded in MAIN world.');
   },
 });
