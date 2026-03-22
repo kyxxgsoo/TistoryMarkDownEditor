@@ -311,6 +311,12 @@
   padding-left: 24px;
 }
 
+/* ===== 하이라이트 (배경색) ===== */
+#tiptap-markdown-editor mark {
+  border-radius: 2px;
+  padding: 1px 2px;
+}
+
 /* ===== 토글 리스트 ===== */
 #tiptap-markdown-editor details[data-toggle] {
   border: 1px solid #e0e5ee;

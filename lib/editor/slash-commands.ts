@@ -118,6 +118,28 @@ export const SLASH_COMMANDS: SlashCommandItem[] = [
     command: (editor) => editor.chain().focus().toggleCode().run(),
   },
   {
+    title: '텍스트 색상',
+    description: '글자 색상 변경',
+    icon: 'A',
+    command: (editor) => {
+      const color = window.prompt('색상을 입력하세요 (예: red, #e03e3e)', '#e03e3e');
+      if (color) {
+        editor.chain().focus().setColor(color).run();
+      }
+    },
+  },
+  {
+    title: '배경색',
+    description: '텍스트 배경색 변경',
+    icon: '🎨',
+    command: (editor) => {
+      const color = window.prompt('배경색을 입력하세요 (예: yellow, #fff3bf)', '#fff3bf');
+      if (color) {
+        editor.chain().focus().toggleHighlight({ color }).run();
+      }
+    },
+  },
+  {
     title: '콜아웃',
     description: '💡 정보 강조 블록',
     icon: '💡',
