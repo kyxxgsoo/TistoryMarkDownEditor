@@ -1,6 +1,11 @@
 import StarterKit from '@tiptap/starter-kit';
+import Link from '@tiptap/extension-link';
+import Underline from '@tiptap/extension-underline';
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
 import { SlashCommands } from './slash-commands';
 import { Callout } from './callout';
+import { ToggleList } from './toggle-list';
 
 /**
  * TipTap 에디터에 사용할 확장 목록.
@@ -20,6 +25,24 @@ export function getExtensions() {
       codeBlock: { HTMLAttributes: { class: 'tiptap-code-block' } },
       blockquote: { HTMLAttributes: { class: 'tiptap-blockquote' } },
     }),
+    Link.configure({
+      openOnClick: false,
+      autolink: true,
+      HTMLAttributes: {
+        class: 'tiptap-link',
+        rel: 'noopener noreferrer',
+        target: '_blank',
+      },
+    }),
+    Underline,
+    TaskList.configure({
+      HTMLAttributes: { class: 'tiptap-task-list' },
+    }),
+    TaskItem.configure({
+      nested: true,
+      HTMLAttributes: { class: 'tiptap-task-item' },
+    }),
+    ToggleList,
     SlashCommands,
     Callout,
   ];

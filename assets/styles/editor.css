@@ -250,3 +250,90 @@
   background: #fff5f5;
   border: 1px solid #ffb8b8;
 }
+
+/* ===== 링크 ===== */
+#tiptap-markdown-editor a.tiptap-link {
+  color: #2563eb;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+#tiptap-markdown-editor a.tiptap-link:hover {
+  color: #1d4ed8;
+}
+
+/* ===== 밑줄 ===== */
+#tiptap-markdown-editor u {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ===== 체크리스트 ===== */
+#tiptap-markdown-editor .tiptap-task-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 8px 0;
+}
+
+#tiptap-markdown-editor .tiptap-task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 4px 0;
+}
+
+#tiptap-markdown-editor .tiptap-task-item > label {
+  display: flex;
+  align-items: center;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+#tiptap-markdown-editor .tiptap-task-item > label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #2563eb;
+}
+
+#tiptap-markdown-editor .tiptap-task-item > div {
+  flex: 1;
+  min-width: 0;
+}
+
+#tiptap-markdown-editor .tiptap-task-item[data-checked="true"] > div {
+  text-decoration: line-through;
+  color: #999;
+}
+
+#tiptap-markdown-editor .tiptap-task-list .tiptap-task-list {
+  padding-left: 24px;
+}
+
+/* ===== 토글 리스트 ===== */
+#tiptap-markdown-editor details[data-toggle] {
+  border: 1px solid #e0e5ee;
+  border-radius: 6px;
+  margin: 12px 0;
+}
+
+#tiptap-markdown-editor details[data-toggle] summary {
+  padding: 12px 16px;
+  cursor: pointer;
+  font-weight: 500;
+  user-select: none;
+  list-style: none;
+}
+
+#tiptap-markdown-editor details[data-toggle] summary::-webkit-details-marker {
+  display: none;
+}
+
+#tiptap-markdown-editor details[data-toggle][open] summary {
+  border-bottom: 1px solid #e0e5ee;
+}
+
+#tiptap-markdown-editor details[data-toggle] [data-toggle-content] {
+  padding: 4px 16px 12px;
+}

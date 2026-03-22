@@ -42,6 +42,23 @@ export const SLASH_COMMANDS: SlashCommandItem[] = [
     command: (editor) => editor.chain().focus().toggleOrderedList().run(),
   },
   {
+    title: '체크리스트',
+    description: '할 일 목록',
+    icon: '☑',
+    command: (editor) => editor.chain().focus().toggleTaskList().run(),
+  },
+  {
+    title: '토글 리스트',
+    description: '접기/펼치기 블록',
+    icon: '▶',
+    command: (editor) => {
+      const summary = window.prompt('토글 제목을 입력하세요', '토글');
+      if (summary) {
+        (editor.commands as any).setToggleList({ summary });
+      }
+    },
+  },
+  {
     title: '인용',
     description: '인용문 블록',
     icon: '"',
@@ -76,6 +93,23 @@ export const SLASH_COMMANDS: SlashCommandItem[] = [
     description: '취소선 텍스트',
     icon: 'S',
     command: (editor) => editor.chain().focus().toggleStrike().run(),
+  },
+  {
+    title: '밑줄',
+    description: '밑줄 텍스트',
+    icon: 'U',
+    command: (editor) => editor.chain().focus().toggleUnderline().run(),
+  },
+  {
+    title: '링크',
+    description: '하이퍼링크 삽입',
+    icon: '🔗',
+    command: (editor) => {
+      const url = window.prompt('URL을 입력하세요');
+      if (url) {
+        editor.chain().focus().setLink({ href: url }).run();
+      }
+    },
   },
   {
     title: '인라인 코드',
