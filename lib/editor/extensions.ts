@@ -29,6 +29,8 @@ export function getExtensions() {
       heading: { levels: [1, 2, 3, 4] },
       codeBlock: { HTMLAttributes: { class: 'tiptap-code-block' } },
       blockquote: { HTMLAttributes: { class: 'tiptap-blockquote' } },
+      link: false,
+      underline: false,
     }),
     Link.configure({
       openOnClick: false,

@@ -1,5 +1,49 @@
 import { Node, mergeAttributes } from '@tiptap/core';
-import katex from 'katex';
+
+const KATEX_CDN_JS = 'https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js';
+const KATEX_CDN_CSS = 'https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css';
+
+let katexLoaded: Promise<void> | null = null;
+
+/** KaTeX JS + CSS를 CDN에서 로드 (중복 방지) */
+function ensureKatex(): Promise<void> {
+  if (katexLoaded) return katexLoaded;
+
+  katexLoaded = new Promise<void>((resolve) => {
+    // CSS 로드
+    if (!document.getElementById('tition-katex-css')) {
+      const link = document.createElement('link');
+      link.id = 'tition-katex-css';
+      link.rel = 'stylesheet';
+      link.href = KATEX_CDN_CSS;
+      document.head.appendChild(link);
+    }
+
+    // JS 로드
+    if ((window as any).katex) {
+      resolve();
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = KATEX_CDN_JS;
+    script.onload = () => resolve();
+    script.onerror = () => resolve(); // 실패해도 진행
+    document.head.appendChild(script);
+  });
+
+  return katexLoaded;
+}
+
+/** KaTeX 렌더링 (로드 전이면 원본 텍스트 반환) */
+function renderLatex(latex: string): string {
+  const k = (window as any).katex;
+  if (!k) return `<span style="font-family:monospace">${latex}</span>`;
+  try {
+    return k.renderToString(latex, { throwOnError: false, displayMode: true });
+  } catch {
+    return `<span style="color:#e03e3e">${latex}</span>`;
+  }
+}
 
 export interface MathBlockOptions {
   HTMLAttributes: Record<string, any>;
@@ -40,15 +84,7 @@ export const MathBlock = Node.create<MathBlockOptions>({
 
   renderHTML({ HTMLAttributes }) {
     const latex = HTMLAttributes['data-latex'] || '';
-    let rendered = '';
-    try {
-      rendered = katex.renderToString(latex, {
-        throwOnError: false,
-        displayMode: true,
-      });
-    } catch {
-      rendered = `<span style="color:#e03e3e">${latex}</span>`;
-    }
+    const rendered = renderLatex(latex);
 
     return [
       'div',
@@ -70,18 +106,12 @@ export const MathBlock = Node.create<MathBlockOptions>({
       dom.style.cssText = 'text-align:center;padding:16px 0;margin:12px 0;cursor:pointer;border:1px solid transparent;border-radius:6px';
       dom.contentEditable = 'false';
 
-      const renderMath = (latex: string) => {
-        try {
-          dom.innerHTML = katex.renderToString(latex, {
-            throwOnError: false,
-            displayMode: true,
-          });
-        } catch {
-          dom.innerHTML = `<span style="color:#e03e3e">${latex || '수식을 입력하세요'}</span>`;
-        }
+      const updateDisplay = (latex: string) => {
+        dom.innerHTML = renderLatex(latex) || `<span style="color:#999">수식을 입력하세요</span>`;
       };
 
-      renderMath(node.attrs.latex);
+      // KaTeX CDN 로드 후 렌더링
+      ensureKatex().then(() => updateDisplay(node.attrs.latex));
 
       dom.addEventListener('click', () => {
         const newLatex = window.prompt('LaTeX 수식을 입력하세요', node.attrs.latex);
@@ -90,7 +120,7 @@ export const MathBlock = Node.create<MathBlockOptions>({
             tr.setNodeMarkup(getPos(), undefined, { latex: newLatex });
             return true;
           }).run();
-          renderMath(newLatex);
+          updateDisplay(newLatex);
         }
       });
 
