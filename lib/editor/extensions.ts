@@ -10,6 +10,7 @@ import Image from '@tiptap/extension-image';
 import { SlashCommands } from './slash-commands';
 import { Callout } from './callout';
 import { ToggleList } from './toggle-list';
+import { MathBlock } from './math-block';
 
 /**
  * TipTap 에디터에 사용할 확장 목록.
@@ -61,6 +62,7 @@ export function getExtensions() {
       HTMLAttributes: { class: 'tiptap-image' },
     }),
     ToggleList,
+    MathBlock,
     SlashCommands,
     Callout,
   ];

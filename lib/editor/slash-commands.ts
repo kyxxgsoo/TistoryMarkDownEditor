@@ -178,6 +178,17 @@ export const SLASH_COMMANDS: SlashCommandItem[] = [
     command: (editor) => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
   },
   {
+    title: '수식',
+    description: 'LaTeX 수식 블록',
+    icon: '∑',
+    command: (editor) => {
+      const latex = window.prompt('LaTeX 수식을 입력하세요 (예: E = mc^2)', 'E = mc^2');
+      if (latex) {
+        (editor.commands as any).setMathBlock({ latex });
+      }
+    },
+  },
+  {
     title: '콜아웃',
     description: '💡 정보 강조 블록',
     icon: '💡',
