@@ -5,6 +5,7 @@ import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import { TextStyle } from '@tiptap/extension-text-style';
 import Highlight from '@tiptap/extension-highlight';
+import { Table, TableRow, TableCell, TableHeader } from '@tiptap/extension-table';
 import { SlashCommands } from './slash-commands';
 import { Callout } from './callout';
 import { ToggleList } from './toggle-list';
@@ -46,6 +47,13 @@ export function getExtensions() {
     }),
     TextStyle,
     Highlight.configure({ multicolor: true }),
+    Table.configure({
+      resizable: true,
+      HTMLAttributes: { class: 'tiptap-table' },
+    }),
+    TableRow,
+    TableCell,
+    TableHeader,
     ToggleList,
     SlashCommands,
     Callout,

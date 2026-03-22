@@ -140,6 +140,12 @@ export const SLASH_COMMANDS: SlashCommandItem[] = [
     },
   },
   {
+    title: '테이블',
+    description: '표 삽입',
+    icon: '▦',
+    command: (editor) => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
+  },
+  {
     title: '콜아웃',
     description: '💡 정보 강조 블록',
     icon: '💡',
