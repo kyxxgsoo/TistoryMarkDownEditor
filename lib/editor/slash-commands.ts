@@ -140,6 +140,38 @@ export const SLASH_COMMANDS: SlashCommandItem[] = [
     },
   },
   {
+    title: '이미지 (URL)',
+    description: 'URL로 이미지 삽입',
+    icon: '🖼',
+    command: (editor) => {
+      const url = window.prompt('이미지 URL을 입력하세요');
+      if (url) {
+        editor.chain().focus().setImage({ src: url }).run();
+      }
+    },
+  },
+  {
+    title: '이미지 (파일)',
+    description: '파일에서 이미지 삽입',
+    icon: '📁',
+    command: (editor) => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = () => {
+        const file = input.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const src = reader.result as string;
+          editor.chain().focus().setImage({ src }).run();
+        };
+        reader.readAsDataURL(file);
+      };
+      input.click();
+    },
+  },
+  {
     title: '테이블',
     description: '표 삽입',
     icon: '▦',

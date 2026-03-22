@@ -6,6 +6,7 @@ import TaskItem from '@tiptap/extension-task-item';
 import { TextStyle } from '@tiptap/extension-text-style';
 import Highlight from '@tiptap/extension-highlight';
 import { Table, TableRow, TableCell, TableHeader } from '@tiptap/extension-table';
+import Image from '@tiptap/extension-image';
 import { SlashCommands } from './slash-commands';
 import { Callout } from './callout';
 import { ToggleList } from './toggle-list';
@@ -54,6 +55,11 @@ export function getExtensions() {
     TableRow,
     TableCell,
     TableHeader,
+    Image.configure({
+      inline: false,
+      allowBase64: true,
+      HTMLAttributes: { class: 'tiptap-image' },
+    }),
     ToggleList,
     SlashCommands,
     Callout,

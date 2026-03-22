@@ -311,6 +311,20 @@
   padding-left: 24px;
 }
 
+/* ===== 이미지 ===== */
+#tiptap-markdown-editor .tiptap-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 12px 0;
+  display: block;
+}
+
+#tiptap-markdown-editor .tiptap-image.ProseMirror-selectednode {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
 /* ===== 테이블 ===== */
 #tiptap-markdown-editor .tiptap-table {
   border-collapse: collapse;
