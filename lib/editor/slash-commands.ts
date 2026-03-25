@@ -2,6 +2,76 @@ import { Extension } from '@tiptap/core';
 import { Suggestion } from '@tiptap/suggestion';
 import type { Editor } from '@tiptap/core';
 
+const MAX_GRID = 8;
+
+/** 드래그로 테이블 크기를 선택하는 그리드 팝업 */
+function showTableGridPicker(onSelect: (rows: number, cols: number) => void) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99998';
+
+  const popup = document.createElement('div');
+  popup.className = 'table-grid-picker';
+
+  const label = document.createElement('div');
+  label.className = 'table-grid-label';
+  label.textContent = '0 × 0';
+
+  const grid = document.createElement('div');
+  grid.className = 'table-grid';
+  grid.style.gridTemplateColumns = `repeat(${MAX_GRID}, 1fr)`;
+
+  let hoverRow = 0;
+  let hoverCol = 0;
+
+  for (let r = 0; r < MAX_GRID; r++) {
+    for (let c = 0; c < MAX_GRID; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'table-grid-cell';
+      cell.dataset.row = String(r);
+      cell.dataset.col = String(c);
+      cell.addEventListener('mouseenter', () => {
+        hoverRow = r;
+        hoverCol = c;
+        label.textContent = `${r + 1} × ${c + 1}`;
+        updateGridHighlight();
+      });
+      cell.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        cleanup();
+        onSelect(r + 1, c + 1);
+      });
+      grid.appendChild(cell);
+    }
+  }
+
+  function updateGridHighlight() {
+    const cells = grid.querySelectorAll('.table-grid-cell');
+    cells.forEach((cell) => {
+      const el = cell as HTMLElement;
+      const cr = parseInt(el.dataset.row || '0');
+      const cc = parseInt(el.dataset.col || '0');
+      el.classList.toggle('is-selected', cr <= hoverRow && cc <= hoverCol);
+    });
+  }
+
+  function cleanup() {
+    popup.remove();
+    overlay.remove();
+  }
+
+  overlay.addEventListener('click', cleanup);
+  popup.appendChild(grid);
+  popup.appendChild(label);
+  document.body.appendChild(overlay);
+  document.body.appendChild(popup);
+
+  // 화면 중앙에 배치
+  const rect = popup.getBoundingClientRect();
+  popup.style.left = `${(window.innerWidth - rect.width) / 2}px`;
+  popup.style.top = `${(window.innerHeight - rect.height) / 2}px`;
+}
+
 export interface SlashCommandItem {
   title: string;
   description: string;
@@ -173,9 +243,13 @@ export const SLASH_COMMANDS: SlashCommandItem[] = [
   },
   {
     title: '테이블',
-    description: '표 삽입',
+    description: '표 삽입 (크기 선택)',
     icon: '▦',
-    command: (editor) => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(),
+    command: (editor) => {
+      showTableGridPicker((rows, cols) => {
+        editor.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
+      });
+    },
   },
   {
     title: '수식',
@@ -319,12 +393,24 @@ class SlashCommandPopup {
       )
       .join('');
 
-    // 클릭 이벤트
+    // 클릭 및 호버 이벤트
     this.element.querySelectorAll('.slash-command-item').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('mouseenter', () => {
+        const index = parseInt((btn as HTMLElement).dataset.index || '0');
+        this.selectedIndex = index;
+        this.updateSelectedClass();
+      });
+      btn.addEventListener('click', () => {
         const index = parseInt((btn as HTMLElement).dataset.index || '0');
         this.selectItem(index);
       });
+    });
+  }
+
+  private updateSelectedClass() {
+    this.element.querySelectorAll('.slash-command-item').forEach((btn) => {
+      const index = parseInt((btn as HTMLElement).dataset.index || '0');
+      btn.classList.toggle('is-selected', index === this.selectedIndex);
     });
   }
 
@@ -337,13 +423,13 @@ class SlashCommandPopup {
   onKeyDown(event: KeyboardEvent): boolean {
     if (event.key === 'ArrowUp') {
       this.selectedIndex = (this.selectedIndex - 1 + this.items.length) % this.items.length;
-      this.render();
+      this.updateSelectedClass();
       return true;
     }
 
     if (event.key === 'ArrowDown') {
       this.selectedIndex = (this.selectedIndex + 1) % this.items.length;
-      this.render();
+      this.updateSelectedClass();
       return true;
     }
 

@@ -10,7 +10,86 @@ const TIPTAP_CONTAINER_ID = 'tiptap-markdown-editor';
  * TinyMCE는 오프스크린으로 숨겨 기능을 유지하며,
  * 발행/저장 시점에만 콘텐츠를 동기화한다.
  */
-export function injectEditor(elements: TistoryEditorElements): Editor {
+/** iframe body나 textarea에서 빈 콘텐츠가 아닌 값이 있는지 확인 */
+function isEmptyContent(html: string): boolean {
+  const trimmed = html.trim();
+  return !trimmed || trimmed === '<p><br></p>' || trimmed === '<br>' || trimmed === '<p><br data-mce-bogus="1"></p>';
+}
+
+/** 기존 콘텐츠를 읽어온다. iframe/textarea에서 즉시 읽고, 비어있으면 폴링으로 대기한다. */
+function readContent(elements: TistoryEditorElements): string {
+  try {
+    const iframeDoc = elements.editorIframe.contentDocument;
+    if (iframeDoc?.body) {
+      const bodyHtml = iframeDoc.body.innerHTML;
+      if (!isEmptyContent(bodyHtml)) return bodyHtml;
+    }
+  } catch {
+    // iframe 접근 실패 시 무시
+  }
+
+  const textareaVal = elements.hiddenTextarea.value;
+  if (!isEmptyContent(textareaVal)) return textareaVal;
+
+  return '';
+}
+
+/**
+ * 수정 페이지에서 기존 콘텐츠를 가져온다.
+ * TinyMCE가 AJAX로 콘텐츠를 로드하는 경우 지연이 있을 수 있으므로,
+ * 수정 페이지(/manage/post/*)에서는 콘텐츠가 나타날 때까지 최대 10초 대기한다.
+ * MutationObserver + 폴링 이중 감지로 레이스 컨디션을 방지한다.
+ */
+function loadExistingContent(elements: TistoryEditorElements): Promise<string> {
+  const immediate = readContent(elements);
+  if (immediate) return Promise.resolve(immediate);
+
+  // 새 글 작성 페이지면 콘텐츠가 없는 것이 정상
+  const isEditPage = /\/manage\/post\/\d+/.test(location.pathname);
+  if (!isEditPage) return Promise.resolve('');
+
+  return new Promise((resolve) => {
+    let resolved = false;
+    const maxWait = 10_000;
+
+    function done(content: string) {
+      if (resolved) return;
+      resolved = true;
+      observer?.disconnect();
+      clearInterval(pollTimer);
+      clearTimeout(timeout);
+      resolve(content);
+    }
+
+    // 1. MutationObserver: iframe body 변경 감지
+    let observer: MutationObserver | null = null;
+    try {
+      const iframeDoc = elements.editorIframe.contentDocument;
+      if (iframeDoc?.body) {
+        observer = new MutationObserver(() => {
+          const content = readContent(elements);
+          if (content) done(content);
+        });
+        observer.observe(iframeDoc.body, { childList: true, subtree: true, characterData: true });
+      }
+    } catch {
+      // iframe 접근 실패 시 무시
+    }
+
+    // 2. 폴링: textarea 변경도 감지 (MutationObserver가 못 잡는 경우 대비)
+    const pollTimer = setInterval(() => {
+      const content = readContent(elements);
+      if (content) done(content);
+    }, 300);
+
+    // 3. 타임아웃
+    const timeout = setTimeout(() => {
+      done(readContent(elements));
+    }, maxWait);
+  });
+}
+
+export async function injectEditor(elements: TistoryEditorElements): Promise<Editor> {
   const { editorContainer, kakaoEditor } = elements;
 
   if (document.getElementById(TIPTAP_CONTAINER_ID)) {
@@ -31,22 +110,7 @@ export function injectEditor(elements: TistoryEditorElements): Editor {
   kakaoEditor.insertBefore(tiptapContainer, editorContainer);
 
   // 기존 글 수정 시 콘텐츠 가져오기
-  let initialContent = '';
-  try {
-    const iframeDoc = elements.editorIframe.contentDocument;
-    if (iframeDoc?.body) {
-      const bodyHtml = iframeDoc.body.innerHTML.trim();
-      if (bodyHtml && bodyHtml !== '<p><br></p>' && bodyHtml !== '<br>' && bodyHtml !== '<p><br data-mce-bogus="1"></p>') {
-        initialContent = bodyHtml;
-      }
-    }
-  } catch {
-    // iframe 접근 실패 시 무시
-  }
-
-  if (!initialContent && elements.hiddenTextarea.value.trim()) {
-    initialContent = elements.hiddenTextarea.value;
-  }
+  const initialContent = await loadExistingContent(elements);
 
   // TipTap 에디터 생성
   let syncTimer: ReturnType<typeof setTimeout> | null = null;

@@ -53,11 +53,22 @@ export function getExtensions() {
     Highlight.configure({ multicolor: true }),
     Table.configure({
       resizable: true,
-      HTMLAttributes: { class: 'tiptap-table' },
+      HTMLAttributes: {
+        class: 'tiptap-table',
+        style: 'border-collapse:collapse;width:100%;margin:12px 0',
+      },
     }),
     TableRow,
-    TableCell,
-    TableHeader,
+    TableCell.configure({
+      HTMLAttributes: {
+        style: 'border:1px solid #d0d5dd;padding:8px 12px;min-width:80px;vertical-align:top',
+      },
+    }),
+    TableHeader.configure({
+      HTMLAttributes: {
+        style: 'border:1px solid #d0d5dd;padding:8px 12px;min-width:80px;background:#f5f7fa;font-weight:600;vertical-align:top',
+      },
+    }),
     Image.configure({
       inline: false,
       allowBase64: true,
