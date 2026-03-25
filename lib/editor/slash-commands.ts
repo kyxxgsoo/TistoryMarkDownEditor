@@ -2,6 +2,76 @@ import { Extension } from '@tiptap/core';
 import { Suggestion } from '@tiptap/suggestion';
 import type { Editor } from '@tiptap/core';
 
+const MAX_GRID = 8;
+
+/** 드래그로 테이블 크기를 선택하는 그리드 팝업 */
+function showTableGridPicker(onSelect: (rows: number, cols: number) => void) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99998';
+
+  const popup = document.createElement('div');
+  popup.className = 'table-grid-picker';
+
+  const label = document.createElement('div');
+  label.className = 'table-grid-label';
+  label.textContent = '0 × 0';
+
+  const grid = document.createElement('div');
+  grid.className = 'table-grid';
+  grid.style.gridTemplateColumns = `repeat(${MAX_GRID}, 1fr)`;
+
+  let hoverRow = 0;
+  let hoverCol = 0;
+
+  for (let r = 0; r < MAX_GRID; r++) {
+    for (let c = 0; c < MAX_GRID; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'table-grid-cell';
+      cell.dataset.row = String(r);
+      cell.dataset.col = String(c);
+      cell.addEventListener('mouseenter', () => {
+        hoverRow = r;
+        hoverCol = c;
+        label.textContent = `${r + 1} × ${c + 1}`;
+        updateGridHighlight();
+      });
+      cell.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        cleanup();
+        onSelect(r + 1, c + 1);
+      });
+      grid.appendChild(cell);
+    }
+  }
+
+  function updateGridHighlight() {
+    const cells = grid.querySelectorAll('.table-grid-cell');
+    cells.forEach((cell) => {
+      const el = cell as HTMLElement;
+      const cr = parseInt(el.dataset.row || '0');
+      const cc = parseInt(el.dataset.col || '0');
+      el.classList.toggle('is-selected', cr <= hoverRow && cc <= hoverCol);
+    });
+  }
+
+  function cleanup() {
+    popup.remove();
+    overlay.remove();
+  }
+
+  overlay.addEventListener('click', cleanup);
+  popup.appendChild(grid);
+  popup.appendChild(label);
+  document.body.appendChild(overlay);
+  document.body.appendChild(popup);
+
+  // 화면 중앙에 배치
+  const rect = popup.getBoundingClientRect();
+  popup.style.left = `${(window.innerWidth - rect.width) / 2}px`;
+  popup.style.top = `${(window.innerHeight - rect.height) / 2}px`;
+}
+
 export interface SlashCommandItem {
   title: string;
   description: string;
@@ -42,6 +112,23 @@ export const SLASH_COMMANDS: SlashCommandItem[] = [
     command: (editor) => editor.chain().focus().toggleOrderedList().run(),
   },
   {
+    title: '체크리스트',
+    description: '할 일 목록',
+    icon: '☑',
+    command: (editor) => editor.chain().focus().toggleTaskList().run(),
+  },
+  {
+    title: '토글 리스트',
+    description: '접기/펼치기 블록',
+    icon: '▶',
+    command: (editor) => {
+      const summary = window.prompt('토글 제목을 입력하세요', '토글');
+      if (summary) {
+        (editor.commands as any).setToggleList({ summary });
+      }
+    },
+  },
+  {
     title: '인용',
     description: '인용문 블록',
     icon: '"',
@@ -78,10 +165,102 @@ export const SLASH_COMMANDS: SlashCommandItem[] = [
     command: (editor) => editor.chain().focus().toggleStrike().run(),
   },
   {
+    title: '밑줄',
+    description: '밑줄 텍스트',
+    icon: 'U',
+    command: (editor) => editor.chain().focus().toggleUnderline().run(),
+  },
+  {
+    title: '링크',
+    description: '하이퍼링크 삽입',
+    icon: '🔗',
+    command: (editor) => {
+      const url = window.prompt('URL을 입력하세요');
+      if (url) {
+        editor.chain().focus().setLink({ href: url }).run();
+      }
+    },
+  },
+  {
     title: '인라인 코드',
     description: '인라인 코드 서식',
     icon: '`',
     command: (editor) => editor.chain().focus().toggleCode().run(),
+  },
+  {
+    title: '텍스트 색상',
+    description: '글자 색상 변경',
+    icon: 'A',
+    command: (editor) => {
+      const color = window.prompt('색상을 입력하세요 (예: red, #e03e3e)', '#e03e3e');
+      if (color) {
+        editor.chain().focus().setColor(color).run();
+      }
+    },
+  },
+  {
+    title: '배경색',
+    description: '텍스트 배경색 변경',
+    icon: '🎨',
+    command: (editor) => {
+      const color = window.prompt('배경색을 입력하세요 (예: yellow, #fff3bf)', '#fff3bf');
+      if (color) {
+        editor.chain().focus().toggleHighlight({ color }).run();
+      }
+    },
+  },
+  {
+    title: '이미지 (URL)',
+    description: 'URL로 이미지 삽입',
+    icon: '🖼',
+    command: (editor) => {
+      const url = window.prompt('이미지 URL을 입력하세요');
+      if (url) {
+        editor.chain().focus().setImage({ src: url }).run();
+      }
+    },
+  },
+  {
+    title: '이미지 (파일)',
+    description: '파일에서 이미지 삽입',
+    icon: '📁',
+    command: (editor) => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = () => {
+        const file = input.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const src = reader.result as string;
+          editor.chain().focus().setImage({ src }).run();
+        };
+        reader.readAsDataURL(file);
+      };
+      input.click();
+    },
+  },
+  {
+    title: '테이블',
+    description: '표 삽입 (크기 선택)',
+    icon: '▦',
+    command: (editor) => {
+      showTableGridPicker((rows, cols) => {
+        editor.chain().focus().insertTable({ rows, cols, withHeaderRow: true }).run();
+      });
+    },
+  },
+  {
+    title: '수식',
+    description: 'LaTeX 수식 블록',
+    icon: '∑',
+    command: (editor) => {
+      const latex = window.prompt('LaTeX 수식을 입력하세요 (예: E = mc^2)', 'E = mc^2');
+      if (latex) {
+        (editor.commands as any).setMathBlock({ latex });
+      }
+    },
   },
   {
     title: '콜아웃',
@@ -214,12 +393,24 @@ class SlashCommandPopup {
       )
       .join('');
 
-    // 클릭 이벤트
+    // 클릭 및 호버 이벤트
     this.element.querySelectorAll('.slash-command-item').forEach((btn) => {
-      btn.addEventListener('click', (e) => {
+      btn.addEventListener('mouseenter', () => {
+        const index = parseInt((btn as HTMLElement).dataset.index || '0');
+        this.selectedIndex = index;
+        this.updateSelectedClass();
+      });
+      btn.addEventListener('click', () => {
         const index = parseInt((btn as HTMLElement).dataset.index || '0');
         this.selectItem(index);
       });
+    });
+  }
+
+  private updateSelectedClass() {
+    this.element.querySelectorAll('.slash-command-item').forEach((btn) => {
+      const index = parseInt((btn as HTMLElement).dataset.index || '0');
+      btn.classList.toggle('is-selected', index === this.selectedIndex);
     });
   }
 
@@ -232,13 +423,13 @@ class SlashCommandPopup {
   onKeyDown(event: KeyboardEvent): boolean {
     if (event.key === 'ArrowUp') {
       this.selectedIndex = (this.selectedIndex - 1 + this.items.length) % this.items.length;
-      this.render();
+      this.updateSelectedClass();
       return true;
     }
 
     if (event.key === 'ArrowDown') {
       this.selectedIndex = (this.selectedIndex + 1) % this.items.length;
-      this.render();
+      this.updateSelectedClass();
       return true;
     }
 

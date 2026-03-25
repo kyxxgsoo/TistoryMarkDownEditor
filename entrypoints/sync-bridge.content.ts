@@ -4,7 +4,7 @@
  * window.postMessage로 Content Script와 통신한다.
  */
 export default defineContentScript({
-  matches: ['*://*.tistory.com/manage/newpost*', '*://*.tistory.com/manage/post/*'],
+  matches: ['*://*.tistory.com/manage/*'],
   world: 'MAIN',
   runAt: 'document_idle',
   main() {

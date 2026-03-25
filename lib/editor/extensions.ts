@@ -1,6 +1,16 @@
 import StarterKit from '@tiptap/starter-kit';
+import Link from '@tiptap/extension-link';
+import Underline from '@tiptap/extension-underline';
+import TaskList from '@tiptap/extension-task-list';
+import TaskItem from '@tiptap/extension-task-item';
+import { TextStyle } from '@tiptap/extension-text-style';
+import Highlight from '@tiptap/extension-highlight';
+import { Table, TableRow, TableCell, TableHeader } from '@tiptap/extension-table';
+import Image from '@tiptap/extension-image';
 import { SlashCommands } from './slash-commands';
 import { Callout } from './callout';
+import { ToggleList } from './toggle-list';
+import { MathBlock } from './math-block';
 
 /**
  * TipTap 에디터에 사용할 확장 목록.
@@ -19,7 +29,53 @@ export function getExtensions() {
       heading: { levels: [1, 2, 3, 4] },
       codeBlock: { HTMLAttributes: { class: 'tiptap-code-block' } },
       blockquote: { HTMLAttributes: { class: 'tiptap-blockquote' } },
+      link: false,
+      underline: false,
     }),
+    Link.configure({
+      openOnClick: false,
+      autolink: true,
+      HTMLAttributes: {
+        class: 'tiptap-link',
+        rel: 'noopener noreferrer',
+        target: '_blank',
+      },
+    }),
+    Underline,
+    TaskList.configure({
+      HTMLAttributes: { class: 'tiptap-task-list' },
+    }),
+    TaskItem.configure({
+      nested: true,
+      HTMLAttributes: { class: 'tiptap-task-item' },
+    }),
+    TextStyle,
+    Highlight.configure({ multicolor: true }),
+    Table.configure({
+      resizable: true,
+      HTMLAttributes: {
+        class: 'tiptap-table',
+        style: 'border-collapse:collapse;width:100%;margin:12px 0',
+      },
+    }),
+    TableRow,
+    TableCell.configure({
+      HTMLAttributes: {
+        style: 'border:1px solid #d0d5dd;padding:8px 12px;min-width:80px;vertical-align:top',
+      },
+    }),
+    TableHeader.configure({
+      HTMLAttributes: {
+        style: 'border:1px solid #d0d5dd;padding:8px 12px;min-width:80px;background:#f5f7fa;font-weight:600;vertical-align:top',
+      },
+    }),
+    Image.configure({
+      inline: false,
+      allowBase64: true,
+      HTMLAttributes: { class: 'tiptap-image' },
+    }),
+    ToggleList,
+    MathBlock,
     SlashCommands,
     Callout,
   ];
